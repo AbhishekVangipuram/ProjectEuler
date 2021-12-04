@@ -1,27 +1,39 @@
 import math
 
 
-def primesUpTo(n):  # Sieve of Eratosthenes
-    primes = []
-    for i in range(2, n+1):
-        primes.append(True)
-    for i in range(2, math.ceil(n**0.5)):
-        if primes[i-2]:
-            k = 0
-            while (i**2 + k*i) <= n:
-                primes[i**2 + k*i - 2] = False
-                k += 1
-    realPrimes = []
-    for i in range(0, len(primes)):
-        if primes[i]:
-            realPrimes.append(i+2)
+def primesUpTo(n):
+    """ Input n>=0, Returns a list of primes, 2 <= p < n """
+    # By Robert William Hanks, from https://stackoverflow.com/a/3035188/4014959
+    if n <= 1: return []
+    if n == 2: return [2]
+    if n <= 4: return [2,3]
+    if n <= 6: return [2,3,5] 
+    
+    n += 1
+    x, correction = n-n%6+6, 2-(n%6>1)
+    sieve = [True] * (x//3)
+    for i in range(1,int(x**0.5)//3+1):
+      if sieve[i]:
+        k=3*i+1|1
+        sieve[      k*k//3      ::2*k] = [False] * ((x//6-k*k//6-1)//k+1)
+        sieve[k*(k-2*(i&1)+4)//3::2*k] = [False] * ((x//6-k*(k-2*(i&1)+4)//6-1)//k+1)
+    return [2,3] + [3*i+1|1 for i in range(1,x//3-correction) if sieve[i]]
 
-    return realPrimes
 
 
 def primeFactors(n):
     primeFactors = []
-    for i in primesUpTo(n):
+    x = n
+    if x > 100:
+        if n%7 == 0:
+            x //= 7
+        if n%5 ==0:
+            x //= 5
+        if n%3 == 0:
+            x //= 3
+        if x == n:
+            x //= 2
+    for i in primesUpTo(x):
         if n % i == 0:
             primeFactors.append(i)
     primeFactors.sort()
